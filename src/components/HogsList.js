@@ -1,7 +1,12 @@
 import React, {useState}  from "react";
 import Hog from "./Hog"
+import Filter from "./Filter"
+import HogForm from "./HogForm"
+import hogs from "../porkers_data";
 
-function HogsList({hogs}){
+
+function HogsList(){
+    const [hogsArray, setHogsArray] = useState(hogs)
     const [filterCategory, setFilterCategory] = useState("all")
     const [sortBy, setSortBy] = useState("")
 
@@ -13,38 +18,32 @@ function HogsList({hogs}){
         setSortBy(e.target.value)
     }
 
-    let sortedHogs = hogs
+   
     if (sortBy === "name") {
-        sortedHogs.sort((a,b) => (a.name > b.name) ? 1: -1);
+        hogsArray.sort((a,b) => (a.name > b.name) ? 1: -1);
     }
     if (sortBy === "weight") {
-        sortedHogs.sort((a,b) => (a.weight > b.weight) ? 1: -1);
+        hogsArray.sort((a,b) => (a.weight > b.weight) ? 1: -1);
     }
 
-    const displayHogs = hogs.filter((hog) => {
+    const displayHogs = hogsArray.filter((hog) => {
         if (filterCategory === "not greased") return (!hog.greased)
         else if (filterCategory === "greased") return hog.greased
         return hog
 
     })
 
-
     const renderHogs = displayHogs.map((hog) => <Hog key={hog.name} hog={hog}/>)
+
+    function addPig(newPig) {
+        const newPigsArray = [...hogsArray, newPig]
+        setHogsArray(newPigsArray)
+    }
+
     return (
         <>
-            <div className="filterWrapper" >
-                <label htmlFor="greased">Filter by: </label>
-                <select name="greased" id="greased" onChange={handleFilter}>
-                    <option value="all">All</option>
-                    <option value="greased">Greased</option>
-                    <option value="not greased">Not Greased</option>
-                </select>
-                <br/>
-                <label htmlFor="sortBy">Sort By: </label>
-                <button name="sortBy" value="name" onClick={handleClick}>Name</button>
-                <button name="sortBy" value="weight" onClick={handleClick}>Weight</button>
-            </div>
-
+            <Filter handleClick={handleClick} handleFilter={handleFilter} />
+            <HogForm addPig={addPig} />
             <ul className="ui grid container">
                 {renderHogs}
             </ul>
